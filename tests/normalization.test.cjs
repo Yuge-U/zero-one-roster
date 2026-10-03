@@ -1,0 +1,25 @@
+'use strict';
+const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
+const memory=new Map(),ctx={console,structuredClone,Blob,atob,localStorage:{getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,v)}};
+vm.createContext(ctx);vm.runInContext(fs.readFileSync('store.js','utf8')+';globalThis.S=RosterStore;',ctx);
+const s=ctx.S, data=s.empty();data.players=Array.from({length:47},(_,i)=>({id:'p'+i,school:i<4?['大府西中','大府西中学校','大府市立西中学校','大府市立大府西中学校'][i]:'愛知県別の学生',updatedAt:'2020-01-01T00:00:00Z',memo:'keep'}));
+memory.set('zero-one-roster-v1',JSON.stringify(data));const loaded=s.load();assert.equal(loaded.players.length,47);assert(loaded.players.slice(0,4).every(p=>p.school==='大府市立大府西中学校'));assert.equal(loaded.players[4].school,'愛知県別の学生');assert.equal(loaded.players[0].memo,'keep');assert.equal(s.normalizeSchools(loaded),0);assert.deepEqual(s.load(),loaded);
+const fresh=structuredClone(data);fresh.players[0].memo='newer cloud';fresh.players[0].updatedAt='2099-01-01T00:00:00Z';assert.equal(s.merge(loaded,fresh).players[0].memo,'newer cloud');assert.equal(s.merge(loaded,fresh).players[0].school,'大府市立大府西中学校');
+const app=fs.readFileSync('app.js','utf8');const section=app.slice(app.indexOf('function dataUrlBlob('),app.indexOf('function migrationMatch('));vm.runInContext('let state={players:[]}; const photoCache=new Map();const $=()=>({});const esc=String;const syncLabel=()=>{};const render=()=>{};const clock=()=>"";'+section+';globalThis.match=photoPackageMatch;globalThis.setPlayers=p=>state.players=p;',ctx);
+ctx.setPlayers([{id:'p1',jbaId:'123',lastName:'山田',firstName:'太郎',birthday:'2011-06-28'},{id:'p2',lastName:'山田',firstName:'太郎',birthday:'2012-06-28'}]);
+assert.equal(ctx.match({jbaId:'１２３.0',name:'other'}).player.id,'p1');assert.equal(ctx.match({name:'山田\t　太\u200b郎',birthday:'2011-06-28T07:00:00Z'}).player.id,'p1');assert.match(ctx.match({name:'山田太郎'}).reason,/複数/);assert.match(ctx.match({}).reason,/必要/);
+ctx.setPlayers([{id:'p1',name:'山田　太郎',birthday:'2011-06-28T07:00:00Z'}]);assert.equal(ctx.match({name:'山田 太郎',birthday:'2011-06-28'}).player.id,'p1');assert.equal(ctx.match({name:'山田 太郎',birthday:'2010-01-01'}).kind,'氏名');
+ctx.setPlayers([{id:'p1',jbaId:'123',name:'one'},{id:'p2',jbaId:'123',name:'two'}]);assert.equal(ctx.match({jbaId:'123',name:'one'}).player.id,'p1');assert.match(ctx.match({jbaId:'123',name:'unknown'}).reason,/複数/);
+console.log('school migration and photo matching tests passed');
+(async()=>{
+  ctx.setPlayers([{id:'same-player-id',name:'選手A'}]);const uploads=[];
+  ctx.RosterOneDrive={isConnected:()=>true,uploadPhoto:async(id,blob)=>{uploads.push({id,size:blob.size})}};
+  const payload={format:'zero-one-roster-photo-package',photos:[{name:'選手 A',dataUrl:'data:image/jpeg;base64,/9j/2Q=='}]};
+  ctx.payload=payload;
+  const first=await vm.runInContext('importPhotoPackage(payload)',ctx);const second=await vm.runInContext('importPhotoPackage(payload)',ctx);
+  assert.equal(first.success,1);assert.equal(second.success,1);assert.deepEqual(uploads.map(x=>x.id),['same-player-id','same-player-id']);
+  ctx.RosterOneDrive.uploadPhoto=async()=>{throw new Error('OneDrive 503')};
+  const failure=await vm.runInContext('importPhotoPackage(payload)',ctx);assert.equal(failure.failed[0].name,'選手 A');assert.equal(failure.failed[0].reason,'OneDrive 503');
+  ctx.payload={...payload,photos:[payload.photos[0],payload.photos[0]]};const duplicate=await vm.runInContext('importPhotoPackage(payload)',ctx);assert.equal(duplicate.success,0);assert.equal(duplicate.failed.length,2);
+  console.log('photo rerun, upload failure and duplicate target tests passed');
+})().catch(e=>{console.error(e);process.exitCode=1});
