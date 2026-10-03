@@ -22,4 +22,4 @@ $('#spoImportFile').onchange=async e=>{try{const raw=JSON.parse(await e.target.f
 async function initCloud(){try{const a=await RosterOneDrive.init();if(a)$('#syncStatus').textContent='OneDrive接続済み'}catch(e){$('#syncStatus').textContent=e.message}}
 $('#connectBtn').onclick=async()=>{try{await RosterOneDrive.connect()}catch(e){alert(e.message)}};
 $('#syncBtn').onclick=async()=>{try{$('#syncStatus').textContent='同期中…';if(!RosterOneDrive.isConnected())throw new Error('先にOneDriveへ接続してください');const cloud=await RosterOneDrive.read();if(cloud&&RosterStore.valid(cloud))state=RosterStore.merge(state,cloud);await RosterOneDrive.write(state);RosterStore.save(state);render();$('#syncStatus').textContent='同期完了'}catch(e){$('#syncStatus').textContent=e.message}};
-render();initCloud();
+try{render()}catch(e){console.error(e);const s=document.getElementById('syncStatus');if(s)s.textContent='起動エラー: '+e.message}initCloud();
