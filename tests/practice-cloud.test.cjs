@@ -1,0 +1,13 @@
+const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict'),{webcrypto}=require('crypto');
+const calls=[],account={homeAccountId:'test-owner'};let files={},badMarker=false;
+const context={console,crypto:webcrypto,TextEncoder,structuredClone,URL,location:{href:'https://yuge-u.github.io/zero-one-roster/'},window:{msal:{PublicClientApplication:class{async initialize(){}async handleRedirectPromise(){return{account}}getAllAccounts(){return[account]}getActiveAccount(){return account}setActiveAccount(){}async acquireTokenSilent(){return{accessToken:'synthetic-token'}}}}}};
+context.fetch=async(url,options)=>{assert(!options.method||options.method==='GET','Practice access must be read-only');calls.push(url);const path=url.replace('https://graph.microsoft.com/v1.0','');let value=files[path];if(path.includes('store.marker')&&badMarker)value={...value,scope:'other'};assert(value,'Unexpected path '+path);return{ok:true,status:200,json:async()=>value,text:async()=>JSON.stringify(value)}};
+vm.createContext(context);vm.runInContext(fs.readFileSync('practice.js','utf8')+';globalThis.P=RosterPractice',context);vm.runInContext(fs.readFileSync('onedrive.js','utf8')+';globalThis.O=RosterOneDrive',context);
+(async()=>{
+ await context.O.init();const scope='ms-'+await context.P.hash('b75b499d-2b47-42ed-9e10-41cd76dbc6c5|test-owner');
+ const body={format:'zero-one-lab-operation',schemaVersion:1,scope,opId:'00000000-0000-4000-8000-000000000001',entityId:'p1',kind:'practice',parents:[],payload:{title:'同期プラン',team:'A',goal:'goal',totalMinutes:10,items:[{id:'i1',name:'パス',minutes:10}]}};const wire={body,hash:await context.P.hash(body)};
+ files={'/me/drive/special/approot':{id:'root'},'/me/drive/items/root/children':{value:[],'@odata.nextLink':'https://graph.microsoft.com/v1.0/me/drive/items/root/children?$skiptoken=page2'},'/me/drive/items/root/children?$skiptoken=page2':{value:[{id:'practice',name:'ZERO_ONE_PRACTICE_LAB_V02',folder:{}}]},'/me/drive/items/practice:/store.marker.data:/content':{format:'zero-one-browser-lab-store',schemaVersion:1,scope},'/me/drive/items/practice/children':{value:[{id:'op',name:'O_'+body.opId+'_'+wire.hash+'.data',size:500}]},'/me/drive/items/op/content':wire};
+ const result=await context.O.readPracticePlans();assert.equal(result.plans[0].title,'同期プラン');assert(calls.some(x=>x.includes('skiptoken')));
+ badMarker=true;await assert.rejects(()=>context.O.readPracticePlans(),/アカウント/);
+ console.log('PASS: real Practice adapter GET-only, app-folder scope, pagination and wrong-account rejection');
+})().catch(e=>{console.error(e);process.exitCode=1});

@@ -1,0 +1,20 @@
+const assert=require('node:assert/strict'),fs=require('fs'),vm=require('vm'),{webcrypto}=require('crypto');
+const context={console,crypto:webcrypto,TextEncoder,structuredClone};vm.createContext(context);vm.runInContext(fs.readFileSync('practice.js','utf8')+';globalThis.P=RosterPractice',context);const P=context.P;
+(async()=>{
+ const seal=async body=>({body,hash:await P.hash(body)});
+ const base={format:'zero-one-lab-operation',schemaVersion:1,scope:'test',opId:'r1',entityId:'p1',kind:'practice',parents:[],payload:{title:'基礎練習',team:'対象U15',goal:'パス',totalMinutes:30,archived:false,items:[{id:'i1',name:'パス',minutes:10},{id:'i2',name:'シュート',minutes:20}]}};
+ const v1=await seal(base),v2=await seal({...base,opId:'r2',parents:['r1'],payload:{...base.payload,title:'更新プラン'}});
+ assert.equal((await P.plans([v1,v2],'test')).plans[0].revision,'r2');await assert.rejects(()=>P.plans([v1],'other'),/保存先/);
+ await assert.rejects(()=>P.plans([{...v1,body:{...base,payload:{...base.payload,title:'改変'}}}],'test'),/内容/);
+ const conflict=await seal({...base,opId:'r3',parents:['r1']});assert.equal((await P.plans([v1,v2,conflict],'test')).plans.length,0);
+ assert.equal((await P.plans([v2],'test')).warnings.length,1);
+ const archived=await seal({...base,opId:'r3',parents:['r2'],payload:{...base.payload,archived:true}});assert.equal((await P.plans([v1,v2,archived],'test')).plans.length,0);
+ const backup=await seal({format:'zero-one-lab-backup',schemaVersion:1,scope:'test',operations:[v1],objects:[]});const plan=(await P.backup(backup)).plans[0];
+ assert.throws(()=>P.makeRecord({date:'2026-10-03',team:null,plan,items:[],note:''}),/チーム/);
+ assert.throws(()=>P.makeRecord({date:'2026-10-03',team:{id:'a',name:'A'},plan,items:[],note:''}),/1つ以上/);
+ const record=P.makeRecord({date:'2026-10-03',team:{id:'a',name:'A'},plan,items:[{...plan.items[0],actualMinutes:12}],note:'実施'});plan.title='後日変更';assert.equal(record.plan.title,'基礎練習');assert.equal(record.items.length,1);
+ const edited=P.makeRecord({previous:record,date:record.date,team:{id:'b',name:'B'},plan:record.plan,items:record.items,note:'編集'});assert.equal(edited.id,record.id);assert.equal(edited.teamId,'b');
+ vm.runInContext(fs.readFileSync('store.js','utf8')+';globalThis.S=RosterStore',context);const local=context.S.empty(),cloud=context.S.empty();local.records=[record];cloud.records=[{...record,deleted:true,updatedAt:'2099-01-01T00:00:00Z'}];
+ local.activities=[{date:'2026-10-03',teamId:'a',name:'A'}];cloud.activities=[{date:'2026-10-03',teamId:'b',name:'B'}];local.attendance=[{date:'2026-10-03',teamId:'a',playerId:'p1'}];cloud.attendance=[{date:'2026-10-03',teamId:'b',playerId:'p1'}];const merged=context.S.merge(local,cloud);assert.equal(merged.activities.length,2);assert.equal(merged.attendance.length,2);assert.equal(merged.records[0].deleted,true);
+ console.log('PASS: Practice revisions, conflict/archive, checksum/scope, backup, snapshots, edit ID, deletion and same-day multi-team sync');
+})().catch(e=>{console.error(e);process.exitCode=1});
