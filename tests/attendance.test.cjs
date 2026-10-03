@@ -1,0 +1,5 @@
+'use strict';
+const fs=require('fs'),vm=require('vm'),assert=require('assert');const mem=new Map();const ctx={structuredClone:global.structuredClone,localStorage:{getItem:k=>mem.get(k)||null,setItem:(k,v)=>mem.set(k,v)},console};vm.createContext(ctx);vm.runInContext(fs.readFileSync('store.js','utf8')+';globalThis.S=RosterStore;',ctx);
+const base=ctx.S.empty();base.players=[{id:'p1',updatedAt:'2026-10-01T00:00:00Z'}];base.attendance=[{id:'a1',date:'2026-10-03',playerId:'p1',status:'present',updatedAt:'2026-10-03T01:00:00Z'}];
+const cloud=ctx.S.empty();cloud.players=base.players;cloud.attendance=[{id:'a2',date:'2026-10-03',playerId:'p1',status:'absent',updatedAt:'2026-10-03T02:00:00Z'},{id:'a3',date:'2026-10-04',playerId:'p1',status:'present',updatedAt:'2026-10-04T01:00:00Z'}];
+const out=ctx.S.merge(base,cloud);assert.equal(out.attendance.length,2);assert.equal(out.attendance.find(x=>x.date==='2026-10-03').status,'absent');assert.equal(out.attendance.find(x=>x.date==='2026-10-04').status,'present');console.log('attendance merge test passed');
