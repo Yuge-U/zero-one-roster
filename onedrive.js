@@ -7,5 +7,8 @@ async function request(path,options={},asText=false){if(!account)throw new Error
 async function folder(parent,name){const list=await request('/me/drive/items/'+parent+'/children');const found=list.value.find(x=>x.folder&&x.name.toLowerCase()===name.toLowerCase());if(found)return found;return request('/me/drive/items/'+parent+'/children',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,folder:{},'@microsoft.graph.conflictBehavior':'fail'})})}
 async function target(){const root=await request('/me/drive/special/approot');return folder(root.id,'ROSTER')}
 async function read(){const f=await target();try{const item=await request('/me/drive/items/'+f.id+':/roster.data');return JSON.parse(await request('/me/drive/items/'+item.id+'/content',{},true))}catch(e){if(e.status===404)return null;throw e}}
+async function photoFolder(){const root=await target();return folder(root.id,'photos')}
+async function uploadPhoto(playerId,blob){const f=await photoFolder();return request('/me/drive/items/'+f.id+':/'+encodeURIComponent(playerId)+'.jpg:/content',{method:'PUT',headers:{'Content-Type':'image/jpeg'},body:blob})}
+async function photoUrl(playerId){const f=await photoFolder();try{const item=await request('/me/drive/items/'+f.id+':/'+encodeURIComponent(playerId)+'.jpg');return item['@microsoft.graph.downloadUrl']||''}catch(e){if(e.status===404)return'';throw e}}
 async function write(data){const f=await target();return request('/me/drive/items/'+f.id+':/roster.data:/content',{method:'PUT',headers:{'Content-Type':'application/json; charset=utf-8'},body:JSON.stringify(data)})}
-return{init,connect,read,write,isConnected:()=>!!account};})();
+return{init,connect,read,write,uploadPhoto,photoUrl,isConnected:()=>!!account};})();
