@@ -4,7 +4,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict');
  try{
  const page=await browser.newPage({viewport:{width:1100,height:900}}),errors=[];page.on('pageerror',e=>{errors.push(e.message);console.log('PAGE ERROR',e.message)});page.on('dialog',d=>d.accept());page.on('requestfailed',r=>console.log('REQUEST FAILED',r.url(),r.failure()));
  await page.addInitScript(()=>{if(!localStorage.getItem('practice-test-seeded')){localStorage.setItem('zero-one-roster-v1',JSON.stringify({schema:'zero-one-roster',version:1,players:[],records:[],teams:[{id:'a',name:'チームA'},{id:'b',name:'チームB'}]}));localStorage.setItem('practice-test-seeded','yes')}});
- await page.goto(process.env.ROSTER_URL||'http://127.0.0.1:8765');assert.equal(await page.locator('#appVersion').textContent(),'v0.1.27');await page.waitForFunction(()=>typeof RosterOneDrive!=='undefined'&&typeof document.querySelector('#addPracticeBtn').onclick==='function');
+ await page.goto(process.env.ROSTER_URL||'http://127.0.0.1:8765');assert.equal(await page.locator('#appVersion').textContent(),'v0.1.28');await page.waitForFunction(()=>typeof RosterOneDrive!=='undefined'&&typeof document.querySelector('#addPracticeBtn').onclick==='function');
  const plan={id:'p1',revision:'r1',hash:'hash1',title:'パスからの攻撃',team:'U15',goal:'判断',totalMinutes:30,items:[{id:'i1',name:'パス練習',minutes:10},{id:'i2',name:'3対3',minutes:20}]};
  await page.evaluate(plan=>{RosterOneDrive.readPracticePlans=async()=>({plans:[plan],warnings:[]})},plan);
  await page.click('#addPracticeBtn');await page.click('#loadPracticeBtn');await page.waitForFunction(()=>practicePlans.length===1);

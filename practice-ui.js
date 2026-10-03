@@ -1,7 +1,7 @@
 'use strict';
 let practicePlans=[],practiceEditing=null,practiceLoadedPlan=null,practiceLibraryBusy=false;
 function practiceRecords(){return state.records.filter(r=>r.type==='practice-session'&&!r.deleted&&(!activeTeam||String(r.teamId)===String(activeTeam))).sort((a,b)=>b.date.localeCompare(a.date)||b.updatedAt.localeCompare(a.updatedAt))}
-function practiceRecordMarkup(r){return '<article class="practiceRecord"><div><strong>'+esc(r.plan.title)+'</strong><small>'+esc(r.date)+' · '+esc(r.teamName)+' · '+r.items.reduce((n,x)=>n+x.actualMinutes,0)+'分</small></div><ul>'+r.items.map(x=>'<li>'+esc(x.name)+' · '+x.actualMinutes+'分</li>').join('')+'</ul>'+(r.note?'<p>'+esc(r.note)+'</p>':'')+'<button type="button" class="btn light" data-edit-practice="'+esc(r.id)+'">詳細・編集</button></article>'}
+function practiceRecordMarkup(r){return '<article class="practiceRecord"><div><strong>'+esc(r.plan.title)+'</strong><small>'+esc(r.date)+' · '+esc(teamDisplayName(r.teamId,r.teamName))+' · '+r.items.reduce((n,x)=>n+x.actualMinutes,0)+'分</small></div><ul>'+r.items.map(x=>'<li>'+esc(x.name)+' · '+x.actualMinutes+'分</li>').join('')+'</ul>'+(r.note?'<p>'+esc(r.note)+'</p>':'')+'<button type="button" class="btn light" data-edit-practice="'+esc(r.id)+'">詳細・編集</button></article>'}
 function renderPracticeRecords(){
   const records=practiceRecords(),daily=records.filter(r=>r.date===activeDate());
   $('#practiceDayLabel').textContent=activeDate()+' · '+(selectedTeam()?.name||'すべてのチーム');

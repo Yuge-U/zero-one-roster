@@ -5,7 +5,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict');
  try{
  const page=await browser.newPage({viewport:{width:390,height:844}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>localStorage.setItem('zero-one-roster-v1',JSON.stringify({schema:'zero-one-roster',version:1,players:[{id:'p1',lastName:'確認',firstName:'選手',school:'大府西中',status:'active'}],records:[]})));
- await page.goto(process.env.ROSTER_URL||'http://127.0.0.1:8765');assert.equal(await page.locator('#appVersion').textContent(),'v0.1.27');
+ await page.goto(process.env.ROSTER_URL||'http://127.0.0.1:8765');assert.equal(await page.locator('#appVersion').textContent(),'v0.1.28');
  await page.locator('.player').click();await page.fill('#lastName','変更済み');
  await page.locator('#playerDialog').evaluate(el=>el.scrollTop=el.scrollHeight);
  const button=await page.locator('#savePlayerBtn').boundingBox(),dialog=await page.locator('#playerDialog').boundingBox();assert(button.y>=dialog.y&&button.y<dialog.y+100);await page.click('#savePlayerBtn');

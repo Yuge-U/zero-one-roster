@@ -1,0 +1,10 @@
+const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict'),{webcrypto}=require('crypto');
+const c={structuredClone,crypto:webcrypto};vm.createContext(c);vm.runInContext(fs.readFileSync('teams.js','utf8')+';globalThis.T=RosterTeams',c);const T=c.T;
+const data={teams:[{id:'a',name:'旧チームA'}],players:[{id:'p1',jbaSource:{teamId:'a',teamName:'旧チームA'},school:'学校A'},{id:'p2',teamName:'旧L',school:'学校L'}],records:[{id:'record',teamId:'a',teamName:'旧チームA'}]};
+assert.equal(T.membership(data.players[0]).id,'a');const renamed=T.upsert(data,'a',{name:'新チームA'});assert.equal(renamed.id,'a');assert.equal(data.players[0].school,'学校A');assert.equal(data.records[0].teamId,'a');
+T.upsert(data,'name:旧L',{name:'新L'});assert.equal(T.membership(data.players[1]).id,'name:旧L');assert.equal(T.catalog(data).length,2);assert.equal(T.catalog(data).find(t=>t.id==='name:旧L').name,'新L');
+T.assign(data,data.players[0],'name:旧L');assert.equal(T.membership(data.players[0]).id,'name:旧L');T.assign(data,data.players[0],'');assert.equal(T.membership(data.players[0]).id,'');assert.equal(data.players[0].jbaSource.teamId,'a');
+assert.throws(()=>T.upsert(data,'a',{name:'新L'}),/同じ名前/);assert.throws(()=>T.assign(data,data.players[0],'missing'),/選び直し/);assert.throws(()=>T.upsert(data,'',{name:' '}),/入力/);
+const added=T.upsert(data,'',{name:'新チームC'});assert(added.id);assert.equal(T.catalog(data).length,3);
+vm.runInContext(fs.readFileSync('store.js','utf8')+';globalThis.S=RosterStore',c);const local=c.S.empty(),cloud=c.S.empty();local.teams=data.teams;cloud.teams=[{id:'a',name:'旧チームA',updatedAt:'2020-01-01'}];local.players=data.players;cloud.players=[{id:'p1',teamId:'a',updatedAt:'2020-01-01'}];local.players[0].updatedAt='2026-10-03T00:00:00Z';const merged=c.S.merge(local,cloud);assert.equal(T.catalog(merged).find(t=>t.id==='a').name,'新チームA');assert.equal(T.membership(merged.players[0]).id,'');
+console.log('PASS: stable rename, legacy membership, assign/clear, school/source retention, validation and stale-cloud merge');
