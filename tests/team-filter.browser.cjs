@@ -11,7 +11,7 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
    localStorage.setItem('zero-one-roster-active-team','obu');localStorage.setItem('test-seeded','1');
  });
  await page.goto(process.env.ROSTER_URL||'http://127.0.0.1:8765');
- assert.equal(await page.locator('#appVersion').textContent(),'v0.1.30');
+ assert.equal(await page.locator('#appVersion').textContent(),'v0.1.31');
  assert.equal(await page.locator('.player').count(),14);assert.equal(await page.locator('#playerCount').textContent(),'47');
  await page.selectOption('#activeTeam','');assert.equal(await page.locator('.player').count(),47);assert.equal(await page.locator('#filterCount').textContent(),'表示 47 / 47人');
  await page.reload();assert.equal(await page.locator('.player').count(),47);assert.equal(await page.locator('#activeTeam').inputValue(),'');
