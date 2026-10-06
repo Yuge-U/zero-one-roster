@@ -1,10 +1,12 @@
-import sharp from 'sharp'; // 承認済み画像からiOS/PWA用PNGを生成します。
-import { readFile } from 'node:fs/promises'; // 原版バイトを検証します。
-import { createHash } from 'node:crypto'; // 承認済み原版との一致を確認します。
-const source='branding/approved-roster.webp'; // 承認済みROSTERアイコンを唯一の原版にします。
-const bytes=await readFile(source); // 変換前の原版を読みます。
-if(createHash('sha256').update(bytes).digest('hex')!=='be2ad14480e8ce951d9741de2c067402a497304faac7b5dea2a96cfaeada776d')throw new Error('Approved ROSTER artwork mismatch'); // 別画像なら停止します。
-for (const size of [180,192,512]) { // iPhoneとPWAの3サイズを揃えます。
-  const name=size===180?'roster-180.png':`roster-${size}.png`; // 既存命名を維持し180だけ追加します。
-  await sharp(source).resize(size,size,{fit:'cover'}).png().toFile(`icons/${name}`); // 再生成せず縮小・拡大だけを行います。
-} // 画像生成を閉じます。
+import sharp from 'sharp';
+import { readFile, writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const source = await readFile(path.join(root, 'branding/roster-master.png'));
+const { width, height } = await sharp(source).metadata();
+if (width !== height || width < 1024) throw new Error('Native square artwork of at least 1024px required; no upscaling');
+for (const [size, file] of [[180,'roster-180.png'],[192,'roster-192.png'],[512,'roster-512.png']]) {
+  await sharp(source).resize(size,size,{kernel:'lanczos3',withoutEnlargement:true}).png().toFile(path.join(root,'icons',file));
+}
+await writeFile(path.join(root,'icons/roster.svg'), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="ZERO ONE ROSTER"><image width="${width}" height="${height}" href="data:image/png;base64,${source.toString('base64')}"/></svg>\n`);
