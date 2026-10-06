@@ -20,7 +20,7 @@ jobs:
           node-version: 22
       - run: npm install --no-save --package-lock=false sharp@0.33.5
       - run: node scripts/render-icons.mjs
-      - run: git diff --exit-code -- favicon.ico favicon-roster-20261007f.ico favicon-roster-32-20261007f.png icons/roster.svg icons/roster-180.png icons/roster-192.png icons/roster-512.png
+      - run: git diff --exit-code -- safari-roster-180-20261007g.png safari-roster-192-20261007g.png favicon.ico favicon-roster-20261007f.ico favicon-roster-32-20261007f.png icons/roster.svg icons/roster-180.png icons/roster-192.png icons/roster-512.png
   verify-production:
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     needs: render
