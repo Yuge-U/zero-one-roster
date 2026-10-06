@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - icons/roster.svg
+      - branding/approved-roster.webp
       - scripts/render-icons.mjs
 permissions:
   contents: write
@@ -21,6 +21,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add icons/roster-192.png icons/roster-512.png
+          git add icons/roster-180.png icons/roster-192.png icons/roster-512.png
           git diff --cached --quiet || git commit -m "Render ZERO ONE roster icons"
           git push
