@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - branding/roster-master.png
+      - scripts/render-favicon.cjs
       - scripts/render-icons.mjs
       - scripts/verify-brand.cjs
       - .github/workflows/render-icons.yml
@@ -19,7 +20,7 @@ jobs:
           node-version: 22
       - run: npm install --no-save --package-lock=false sharp@0.33.5
       - run: node scripts/render-icons.mjs
-      - run: git diff --exit-code -- icons/roster.svg icons/roster-180.png icons/roster-192.png icons/roster-512.png
+      - run: git diff --exit-code -- favicon.ico favicon-roster-20261007f.ico favicon-roster-32-20261007f.png icons/roster.svg icons/roster-180.png icons/roster-192.png icons/roster-512.png
   verify-production:
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     needs: render
@@ -30,7 +31,7 @@ jobs:
         with:
           node-version: 22
       - run: npm install --no-save --package-lock=false playwright@1.62.1
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium webkit
       - run: node scripts/verify-brand.cjs
       - uses: actions/upload-artifact@v4
         with:

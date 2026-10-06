@@ -10,3 +10,6 @@ for (const [size, file] of [[180,'roster-180.png'],[192,'roster-192.png'],[512,'
   await sharp(source).resize(size,size,{kernel:'lanczos3',withoutEnlargement:true}).png().toFile(path.join(root,'icons',file));
 }
 await writeFile(path.join(root,'icons/roster.svg'), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="ZERO ONE ROSTER"><image width="${width}" height="${height}" href="data:image/png;base64,${source.toString('base64')}"/></svg>\n`);
+
+const {default: renderFavicon} = await import('./render-favicon.cjs');
+await renderFavicon(source,root,'roster');
