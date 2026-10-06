@@ -16,14 +16,14 @@ const config = {"url": "https://yuge-u.github.io/zero-one-roster/", "files": ["i
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
     await page.goto(base, { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => { const img=document.querySelector('.zeroone-splash img'); return img && img.complete && img.naturalWidth>0; });
-    assert.ok((await page.locator('.zeroone-splash img').getAttribute('src')).includes('20261007d'));
+    assert.ok((await page.locator('.zeroone-splash img').getAttribute('src')).includes('20261007e'));
     await page.screenshot({ path: 'production-splash.png' });
     await page.locator('.zeroone-splash').waitFor({ state: 'hidden' });
     await page.waitForLoadState('networkidle');
     const notice = page.getByRole('button', {name:'確認しました',exact:true});
     if (await notice.count() && await notice.isVisible()) await notice.click();
     const images = await page.locator(config.selector).evaluateAll(imgs => imgs.map(img => ({src:img.src,loaded:img.complete && img.naturalWidth>0})));
-    assert.ok(images.length>=2 && images.every(img => img.loaded && img.src.includes('20261007d')), JSON.stringify(images));
+    assert.ok(images.length>=2 && images.every(img => img.loaded && img.src.includes('20261007e')), JSON.stringify(images));
     await page.screenshot({ path: 'production-mobile.png' });
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.screenshot({ path: 'production-desktop.png' });
