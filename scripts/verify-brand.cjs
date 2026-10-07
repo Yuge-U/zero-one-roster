@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { chromium, webkit } = require(process.env.PLAYWRIGHT_PATH || 'playwright');
-const config = {"url": "https://yuge-u.github.io/zero-one-roster/", "files": ["apple-touch-roster-180-20261007k.png", "apple-touch-icon.png", "apple-touch-icon-precomposed.png", "safari-roster-180-20261007g.png", "safari-roster-192-20261007g.png", "favicon.ico", "favicon-roster-20261007f.ico", "favicon-roster-32-20261007f.png", "index.html", "manifest.webmanifest", "icons/roster.svg", "icons/roster-180.png", "icons/roster-192.png", "icons/roster-512.png"], "selector": ".brand img,.zeroone-splash img"};
+const config = {"url": "https://yuge-u.github.io/zero-one-roster/", "files": ["apple-touch-zero-one-180-20261007m.png", "apple-touch-icon.png", "apple-touch-icon-precomposed.png", "safari-roster-180-20261007g.png", "safari-roster-192-20261007g.png", "favicon.ico", "favicon-roster-20261007f.ico", "favicon-roster-32-20261007f.png", "index.html", "manifest.webmanifest", "icons/roster.svg", "icons/roster-180.png", "icons/roster-192.png", "icons/roster-512.png"], "selector": ".brand img,.zeroone-splash img"};
 (async () => {
   const base = process.env.SITE_URL || config.url;
   for (const file of config.files) {
