@@ -33,3 +33,6 @@
 
 /* Keep the activity field inside the same mobile width as the connection bar. */
 @media(max-width:760px){.datebar .activityLabel{min-width:0}.datebar .activityLabel input{min-width:0}}
+
+/* One connection control lives in the existing header row. */
+.top .hero{align-items:center}.top #zeroOneConnection{margin-left:auto}.top .brand{min-width:0}#appVersion{position:absolute!important;top:2px!important;right:8px!important;padding:1px 4px!important;font-size:9px!important;border:0!important;background:transparent!important}@media(max-width:700px){.top .hero{gap:12px}.top .brand b{font-size:18px}}
