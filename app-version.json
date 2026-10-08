@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "app": "ROSTER",
+  "buildId": "0dc6ad0c6b82956b5bd8eff2350e6fc55019d75df255ded1563e7edb3230d20f",
+  "files": [
+    {
+      "path": "app.js",
+      "sha256": "c578544e1755baa07ada90db1697b7fe08113c069c1e60d8cd07c51a450af8bb"
+    },
+    {
+      "path": "apple-touch-zero-one-180-20261007m.png",
+      "sha256": "2a67fb30e4d25670d28f9517dad80525f1bd44f1081147e3586e5b58725b2f1e"
+    },
+    {
+      "path": "brand-entry.js",
+      "sha256": "cbc89fee2fc235866502ea4b213f276873d405f40a081d71eebff83f8b7c9e33"
+    },
+    {
+      "path": "daily-comments.js",
+      "sha256": "ee3fb237085874f50a64f253708c5a990ef93bb09438d091acc130566d67331f"
+    },
+    {
+      "path": "favicon-roster-20261007f.ico",
+      "sha256": "c75819c86fe4787f511baad843314e4ea1cf4f5951029aca13dd9fbb2bddd56a"
+    },
+    {
+      "path": "icons/roster-512.png",
+      "sha256": "012e48bb5c3190834df36b4cf965225451928b954e52610152cea2f5cea4d142"
+    },
+    {
+      "path": "index.html",
+      "sha256": "86434a291e061211074c1f9b5c9d23f92e74bf4321f2f180aef3a7ec550c4f78"
+    },
+    {
+      "path": "jba.js",
+      "sha256": "26be68089465c686fdc3f8a5b78ee30b1dab4a427f71e8b47f88708f7cf8ba84"
+    },
+    {
+      "path": "manifest.webmanifest",
+      "sha256": "2c51788fef6865082f22fc83d4a0cf1430443f0d0c5277997132977e05d5ece3"
+    },
+    {
+      "path": "migration.js",
+      "sha256": "4f50b28bc91d98a3ed58a58a4c3ca82be2e8fcefdbcdafffd89b36ef02dba828"
+    },
+    {
+      "path": "onedrive.js",
+      "sha256": "81a15415df6a32619f20745603e5d5adcec1b798a19517eec63c47da0a2abd21"
+    },
+    {
+      "path": "practice-ui.js",
+      "sha256": "ae56e27eda0c8ece0740e1fa43ddc4ea696260799c61d37bd69bec2f8d09de24"
+    },
+    {
+      "path": "practice.js",
+      "sha256": "1f59c328164ada253fc320a7a24825f48a317f7aadd8d13296f1b0145f5fbc7d"
+    },
+    {
+      "path": "safari-roster-192-20261007g.png",
+      "sha256": "7c538902c730e51e5e429ecfd61a7f749cba94e88d02e03546c6e149a2d74088"
+    },
+    {
+      "path": "store.js",
+      "sha256": "6965389ff9ab2b97da3948bb50356dcd31cbd4e136b3711a030c747138cc4bd0"
+    },
+    {
+      "path": "styles.css",
+      "sha256": "a5a1f9f21eb7a8803f2d98877c139b3e219ff8c610388b29d923e493303a8680"
+    },
+    {
+      "path": "teams.js",
+      "sha256": "82140f7538ddad8dec7bf917774ff7a1f8aeea1e201334b49e17335d70cfeb08"
+    },
+    {
+      "path": "vendor/msal-browser.min.js",
+      "sha256": "074de35a99c1e7fa51d6e235cdaf688d4a24af91f43aef9c54532afcbba62ef2"
+    },
+    {
+      "path": "vendor/xlsx.full.min.js",
+      "sha256": "c9506197caf809a075b6dee1da0d36fb19da7158ffe8a88e7b0c96c5d8623c99"
+    },
+    {
+      "path": "zero-one-connection.css",
+      "sha256": "5ca96de52e054fa5ac95c67fa9bd5629cfa592a2b6d489fe6b1aaa1d94066c66"
+    },
+    {
+      "path": "zero-one-connection.js",
+      "sha256": "75fd15f47ddd54abbceb21ae95ccff7dc139c8245d761d3d1f7be83f8594957c"
+    },
+    {
+      "path": "zero-one-update.css",
+      "sha256": "56caba661c2b1da58ab01628bdcc307179730e320422f5763c340ec463bc663e"
+    },
+    {
+      "path": "zero-one-update.js",
+      "sha256": "cc8dd9092d096d31d25eb0ee9ac6858bc2625c6d1b9574f0d65c332f9dc8db2e"
+    }
+  ]
+}
