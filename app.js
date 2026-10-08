@@ -190,3 +190,10 @@ RosterOneDrive.onStatusChange(updateCloudConnection);
 async function initCloud(){try{const a=await RosterOneDrive.init();if(a){const info=RosterOneDrive.accountInfo?.();syncLabel('接続: '+(info?.username||'Microsoft')+'・確認中…');await refreshCloud()}}catch(e){syncLabel('接続を確認できません。上部の状態表示を確認してください。')}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-lastPull>3000)refreshCloud()});window.addEventListener('focus',()=>{if(Date.now()-lastPull>3000)refreshCloud()});
 const excelStatus=$('#excelStatus');if(excelStatus)excelStatus.textContent=window.XLSX?'Excel読込：準備OK（SheetJS '+(XLSX.version||'local')+'）':'Excel読込：利用不可';try{const savedAudit=JSON.parse(localStorage.getItem('zero-one-roster-last-audit')||'null');if(savedAudit)renderAudit(savedAudit)}catch{}try{const report=JSON.parse(localStorage.getItem('zero-one-roster-photo-report')||'null');if(report)renderPhotoReport(report)}catch{}try{render()}catch(e){console.error(e);syncLabel('起動失敗: '+e.message)}initPracticeUI();initDailyCommentsUI();initCloud();
+
+// The existing form/save handlers remain authoritative. Count async operations without changing storage/auth.
+let zeroOneUpdateBusy=0;
+for(const element of document.querySelectorAll('form,input,button'))for(const key of ['onsubmit','onchange','onclick']){
+  const original=element[key];if(original?.constructor?.name==='AsyncFunction')element[key]=async function(...args){zeroOneUpdateBusy++;try{return await original.apply(this,args);}finally{zeroOneUpdateBusy--;}};
+}
+window.ZeroOneUpdateGuard=()=>({ready:true,busy:Boolean(syncBusy||zeroOneUpdateBusy||practiceLibraryBusy||['checking','connecting'].includes(RosterOneDrive.connectionStatus?.().state)),dirty:Boolean(migrationDraft||document.querySelector('dialog[open]')||($('#activityName').value.trim()!==activityFor(activeDate()))),message:'編集中の内容を保存し、入力画面を閉じてから更新してください。'});
