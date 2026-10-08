@@ -30,3 +30,6 @@
 .playerQuickControls{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--line);margin-top:12px;padding-top:12px;cursor:default}.playerQuickControls .attendance{margin:0;min-height:36px}.quickRoster{display:flex;align-items:center;gap:6px;font-size:12px;color:#52657b;font-weight:800}.quickRoster select{min-height:36px;max-width:110px;padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:#fff;color:#152033}
 /* Daily notes share the selected date and team without editing player profiles. */
 .dailyTeamComment{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}.playerComment{margin-top:12px;cursor:default}.playerComment p{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--paper);padding:10px;border-radius:8px}.practiceRecord p{overflow-wrap:anywhere}#commentDialog .dialogHead{position:sticky;top:-20px;background:#fff;align-items:center;gap:8px;margin:-20px -20px 16px;padding:14px 20px;border-bottom:1px solid var(--line)}#commentTitle{font-size:18px;margin:0}#commentStatus{color:#a43d2a}.brand .logo{border:0;border-radius:12px;display:block;flex-shrink:0}
+
+/* Keep the activity field inside the same mobile width as the connection bar. */
+@media(max-width:760px){.datebar .activityLabel{min-width:0}.datebar .activityLabel input{min-width:0}}

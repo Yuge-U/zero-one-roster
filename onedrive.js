@@ -1,9 +1,15 @@
 'use strict';
 const RosterOneDrive=(()=>{const CLIENT_ID='b75b499d-2b47-42ed-9e10-41cd76dbc6c5',SCOPES=['Files.ReadWrite.AppFolder'],GRAPH='https://graph.microsoft.com/v1.0';let client,account;
-function msalApi(){return window.msal||null}
-async function init(){const api=msalApi();if(!api?.PublicClientApplication)throw new Error('Microsoft接続機能を読み込めません。OneDrive接続時に再試行してください。');client=new api.PublicClientApplication({auth:{clientId:CLIENT_ID,authority:'https://login.microsoftonline.com/consumers',redirectUri:new URL('./',location.href).href,postLogoutRedirectUri:new URL('./',location.href).href},cache:{cacheLocation:'localStorage'},system:{allowPlatformBroker:false}});await client.initialize();const r=await client.handleRedirectPromise();const accounts=client.getAllAccounts();account=r?.account||client.getActiveAccount()||(accounts.length===1?accounts[0]:null);if(account)client.setActiveAccount(account);return account}
-async function connect(){if(!client)await init();await client.loginRedirect({scopes:SCOPES,redirectUri:new URL('./',location.href).href,prompt:'select_account'})}
-async function request(path,options={},asText=false){if(!account)throw new Error('Microsoftアカウントへ接続してください');const token=(await client.acquireTokenSilent({account,scopes:SCOPES})).accessToken;const r=await fetch(GRAPH+path,{...options,headers:{...options.headers,Authorization:'Bearer '+token}});if(!r.ok){let detail='';try{detail=await r.text()}catch{}const e=new Error('OneDrive '+r.status+(detail?' '+detail.slice(0,180):''));e.status=r.status;e.detail=detail;throw e}return asText?r.text():r.status===204?null:r.json()}
+const auth=new ZeroOneConnection.Auth({msal:window.msal,clientId:CLIENT_ID,redirectUri:new URL('./',location.href).href,accountKey:'zero-one-roster-account'});
+async function init(){account=await auth.init();client=auth.client;return account}
+async function connect(options={}){if(!client)await init();return auth.signIn(options)}
+async function request(path,options={},asText=false){
+  if(!account)throw new Error('Microsoftアカウントへ接続してください');
+  let token=await auth.token();
+  const send=()=>fetch(GRAPH+path,{...options,headers:{...options.headers,Authorization:'Bearer '+token}});
+  let r=await send();if(r.status===401){token=await auth.token({forceRefresh:true});r=await send();if(r.status===401)throw auth.requireInteraction()}
+  if(!r.ok){let detail='';try{detail=await r.text()}catch{}const e=new Error('OneDrive '+r.status+(detail?' '+detail.slice(0,180):''));e.status=r.status;e.detail=detail;throw e}return asText?r.text():r.status===204?null:r.json()
+}
 async function folder(parent,name){const list=await request('/me/drive/items/'+parent+'/children');const found=list.value.find(x=>x.folder&&x.name.toLowerCase()===name.toLowerCase());if(found)return found;return request('/me/drive/items/'+parent+'/children',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,folder:{},'@microsoft.graph.conflictBehavior':'fail'})})}
 async function target(){const root=await request('/me/drive/special/approot');return folder(root.id,'ROSTER')}
 async function read(){const f=await target();try{const item=await request('/me/drive/items/'+f.id+':/roster.data');return JSON.parse(await request('/me/drive/items/'+item.id+'/content',{},true))}catch(e){if(e.status===404)return null;throw e}}
@@ -29,4 +35,4 @@ async function readPracticePlans(progress=()=>{}){
   if(account?.homeAccountId!==owner)throw new Error('アカウントが変わりました。再読込してください');
   return RosterPractice.plans(operations,scope);
 }
-const accountInfo=()=>account?{username:account.username||'',homeAccountId:account.homeAccountId||''}:null;return{init,connect,read,write,readPracticePlans,accountInfo,uploadPhoto,uploadPhotoFromUrl,photoUrl,isConnected:()=>!!account};})();
+const accountInfo=()=>account?{username:account.username||'',homeAccountId:account.homeAccountId||''}:null;return{init,connect,signOut:()=>auth.signOut(),checkConnection:()=>auth.check(),connectionStatus:()=>auth.status(),onStatusChange:listener=>auth.subscribe(listener),read,write,readPracticePlans,accountInfo,uploadPhoto,uploadPhotoFromUrl,photoUrl,isConnected:()=>!!account&&!auth.needsInteraction};})();
