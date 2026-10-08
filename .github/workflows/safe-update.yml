@@ -41,9 +41,16 @@ jobs:
         shell: bash
         run: |
           export CHROME_PATH="$(node -e 'process.stdout.write(require("playwright").chromium.executablePath())')"
-          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/roster-http.log 2>&1 &
+          roster_url_file="$(mktemp)"
+          node tests/serve-roster.cjs "$roster_url_file" > /tmp/roster-http.log 2>&1 &
           roster_server_pid=$!
-          trap 'kill "$roster_server_pid"' EXIT
+          trap 'kill "$roster_server_pid"; rm -f "$roster_url_file"' EXIT
+          for attempt in {1..50}; do
+            if [ -s "$roster_url_file" ]; then break; fi
+            sleep 0.1
+          done
+          export ROSTER_URL="$(cat "$roster_url_file")"
+          curl --fail --silent "$ROSTER_URL" > /dev/null
           for test_file in tests/*.browser.cjs; do
             case "$test_file" in *safe-update.browser.cjs|*connection-hub.browser.cjs) continue ;; esac
             node "$test_file"
