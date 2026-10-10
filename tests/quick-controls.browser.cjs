@@ -1,10 +1,10 @@
 const {chromium}=require('playwright'),assert=require('node:assert/strict');
 (async()=>{
- const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
+ const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||undefined,headless:true});
  try{
  const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>{if(localStorage.getItem('quick-seeded'))return;localStorage.setItem('quick-seeded','yes');localStorage.setItem('zero-one-roster-v1',JSON.stringify({schema:'zero-one-roster',version:1,teams:[{id:'a',name:'A'},{id:'b',name:'B'}],players:[{id:'p1',lastName:'確認',firstName:'一',teamId:'a',teamName:'A',rosuta:'A'},{id:'p2',lastName:'確認',firstName:'二',teamId:'b',teamName:'B'}],records:[]}))});
- await page.goto(process.env.ROSTER_URL||'http://127.0.0.1:8765');await page.waitForFunction(()=>document.querySelector('[data-attendance]')?.onchange);assert.equal(await page.locator('#appVersion').textContent(),'v0.1.32');
+ await page.goto(process.env.ROSTER_URL||'http://127.0.0.1:8765');await page.waitForFunction(()=>document.querySelector('[data-attendance]')?.onchange);assert.equal(await page.locator('#appVersion').textContent(),'v0.1.37');
  const date=await page.inputValue('#attendanceDate');await page.locator('[data-attendance="p1"]').check();assert.equal(await page.locator('#playerDialog').isVisible(),false);
  assert.equal(await page.evaluate(()=>state.attendance[0].teamId),'a');assert.equal(await page.evaluate(()=>state.attendance[0].date),date);
  await page.selectOption('[data-player-roster="p1"]','');assert.equal(await page.evaluate(()=>rosterValue(state.players[0])),'');assert.equal(await page.locator('#playerDialog').isVisible(),false);

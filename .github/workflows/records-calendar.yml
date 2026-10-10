@@ -1,0 +1,57 @@
+name: ROSTER records calendar verification
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.16.0'
+      - run: node --test tests/*.test.cjs
+      - run: npm install --no-save --package-lock=false --ignore-scripts playwright@1.63.0
+      - run: npx playwright install --with-deps chromium webkit
+      - run: node tests/run-browser.cjs
+      - run: node tests/records-calendar.browser.cjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: roster-records-${{ matrix.os }}
+          path: reports/records-calendar
+  live:
+    needs: test
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      SITE_URL: https://yuge-u.github.io/zero-one-roster/
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.16.0'
+      - run: node scripts/check-records-public.mjs
+      - run: npm install --no-save --package-lock=false --ignore-scripts playwright@1.63.0
+      - run: npx playwright install --with-deps chromium webkit
+      - run: node tests/records-calendar.browser.cjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: roster-records-live
+          path: reports/records-calendar

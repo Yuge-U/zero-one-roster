@@ -6,7 +6,6 @@ function renderPracticeRecords(){
   const records=practiceRecords(),daily=records.filter(r=>r.date===activeDate());
   $('#practiceDayLabel').textContent=activeDate()+' · '+(selectedTeam()?.name||'すべてのチーム');
   $('#practiceDayList').innerHTML=daily.length?daily.map(practiceRecordMarkup).join(''):'<p class="practiceHint">この日の練習記録はまだありません。</p>';
-  $('#practiceHistoryList').innerHTML=records.length?records.map(practiceRecordMarkup).join(''):'<p class="practiceHint">記録した練習を日付・チーム別に確認できます。</p>';
   document.querySelectorAll('[data-edit-practice]').forEach(b=>b.onclick=()=>openPracticeRecord(b.dataset.editPractice));
 }
 function fillPracticeChoices(selected=''){
