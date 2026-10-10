@@ -18,7 +18,6 @@ function renderDailyComments(){
   const records=state.records.filter(r=>r.type==='practice-comment'&&!r.deleted&&(!activeTeam||r.teamId===activeTeam)).sort((a,b)=>b.date.localeCompare(a.date)||b.updatedAt.localeCompare(a.updatedAt));
   const daily=records.filter(r=>!r.playerId&&r.date===activeDate());
   $('#teamCommentList').innerHTML=daily.length?daily.map(commentMarkup).join(''):'<p class="practiceHint">チーム全体への一言を残せます。</p>';
-  $('#commentHistoryList').innerHTML=records.length?records.map(commentMarkup).join(''):'<p class="practiceHint">チーム・選手への一言が日付順に表示されます。</p>';
   document.querySelectorAll('[data-player-comment]').forEach(b=>b.onclick=()=>openDailyComment(b.dataset.playerComment));
   document.querySelectorAll('[data-edit-comment]').forEach(b=>b.onclick=()=>openDailyComment('',b.dataset.editComment));
 }

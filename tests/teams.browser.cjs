@@ -1,12 +1,12 @@
 const {chromium}=require('playwright'),assert=require('node:assert/strict');
 (async()=>{
- const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
+ const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||undefined,headless:true});
  try{
  const page=await browser.newPage({viewport:{width:1100,height:900}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>{if(localStorage.getItem('teams-test-seeded'))return;localStorage.setItem('teams-test-seeded','yes');localStorage.setItem('zero-one-roster-v1',JSON.stringify({schema:'zero-one-roster',version:1,teams:[{id:'a',name:'旧チームA'},{id:'b',name:'チームB'}],players:[{id:'p1',lastName:'確認',firstName:'一',jbaId:'J1',jbaSource:{teamId:'a',teamName:'旧チームA'},school:'学校A'},{id:'p2',lastName:'確認',firstName:'二',teamName:'旧L',school:'学校L'}],records:[{id:'r1',type:'practice-session',date:'2026-10-03',teamId:'a',teamName:'旧チームA',plan:{title:'過去の練習'},items:[{name:'パス',actualMinutes:10}],updatedAt:'2026-10-03T00:00:00Z'}]}))});
- await page.goto(process.env.ROSTER_URL||'http://127.0.0.1:8765');await page.waitForFunction(()=>typeof document.querySelector('#addTeamBtn').onclick==='function');assert.equal(await page.locator('#appVersion').textContent(),'v0.1.32');
+ await page.goto(process.env.ROSTER_URL||'http://127.0.0.1:8765');await page.waitForFunction(()=>typeof document.querySelector('#addTeamBtn').onclick==='function');assert.equal(await page.locator('#appVersion').textContent(),'v0.1.37');
  await page.click('[data-view="team"]');await page.click('[data-edit-team="a"]');await page.fill('#teamName','ZERO ONE');await page.locator('#teamForm button.primary').click();assert.equal(await page.locator('#teamContextLabel').textContent(),'ZERO ONE');assert.equal(await page.evaluate(()=>state.records[0].teamId),'a');
- await page.click('[data-view="records"]');assert.match(await page.locator('#practiceHistoryList').textContent(),/ZERO ONE/);
+ await page.click('[data-view="records"]');await page.fill('#recordDate','2026-10-03');await page.locator('#recordDate').dispatchEvent('change');assert.match(await page.locator('#practiceHistoryList').textContent(),/ZERO ONE/);
  await page.click('[data-view="roster"]');await page.locator('[data-id="p1"]').locator('h3').click();assert.equal(await page.inputValue('#playerTeam'),'a');await page.selectOption('#playerTeam','b');await page.click('#savePlayerBtn');
  await page.selectOption('#activeTeam','b');assert.equal(await page.locator('.player').count(),1);await page.locator('[data-id="p1"]').locator('h3').click();assert.equal(await page.inputValue('#school'),'学校A');assert.equal(await page.inputValue('#playerTeam'),'b');await page.selectOption('#playerTeam','');await page.click('#savePlayerBtn');
  await page.evaluate(()=>importJbaRows([{'メンバーID':'J1','氏名':'確認 一','チームID':'a','チーム名':'旧チームA','在学校名':'学校A'}]));assert.equal(await page.evaluate(()=>RosterTeams.membership(state.players.find(p=>p.id==='p1')).id),'');
