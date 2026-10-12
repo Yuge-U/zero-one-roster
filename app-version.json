@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "app": "ROSTER",
-  "buildId": "d3515d4ac2edbde253395b5228ad821911df84ce90e5bf24b50553ed72de4f2d",
+  "buildId": "54beb6df5868c87baaf297482ce6f84f32d88534ae081012eabf461596823368",
   "files": [
     {
       "path": "app.js",
@@ -29,7 +29,7 @@
     },
     {
       "path": "index.html",
-      "sha256": "dc36c7d79f4397b94815e171d2b7bb903b11422dcbd9c4feeaea631538754fdf"
+      "sha256": "d3d14cee3e3aa621250d97e5f638fe32afccb4a6ff3b2c42b054fc973d02e874"
     },
     {
       "path": "jba.js",
@@ -97,7 +97,7 @@
     },
     {
       "path": "zero-one-update.js",
-      "sha256": "d452b3f6aa6a1403be0c246762eefc71b238ee2a58ba5fcd8ac186425a061e01"
+      "sha256": "3b0445d1c28eb5c2500e9db89fb47867833416cb24f3ac175d9572a18361cd92"
     }
   ]
 }
