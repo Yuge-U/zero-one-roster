@@ -1,0 +1,7 @@
+{
+  "app": "ROSTER",
+  "directories": [
+    "vendor"
+  ],
+  "versionMount": "#dataView"
+}
